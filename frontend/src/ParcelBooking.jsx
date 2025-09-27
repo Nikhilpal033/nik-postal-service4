@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 
 function ParcelBooking() {
+  const [trackingId, setTrackingId] = useState("");
+  const [sender, setSender] = useState("");
   const [recipient, setRecipient] = useState("");
   const [address, setAddress] = useState("");
   const [weight, setWeight] = useState("");
@@ -9,26 +11,42 @@ function ParcelBooking() {
   const handleBooking = async (e) => {
     e.preventDefault();
 
+    if (!trackingId) {
+      setMessage("Please enter a Tracking ID");
+      return;
+    }
+
+    const newBooking = {
+      id: trackingId,
+      sender,
+      recipient,
+      status: "Booked",
+      weight,
+    };
+
     try {
-      const response = await fetch("http://localhost:5000/api/book", {
+      const response = await fetch("http://localhost:5000/api/parcels", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ recipient, address, weight }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newBooking),
       });
 
-      const data = await response.json();
+      if (!response.ok) throw new Error("Failed to book parcel");
 
-      if (data.trackingId) {
-        setMessage(`Parcel booked! Tracking ID: ${data.trackingId}`);
-        setRecipient("");
-        setAddress("");
-        setWeight("");
-      } else {
-        setMessage("Booking failed. Try again.");
-      }
+      const data = await response.json();
+      setMessage(`Parcel booked! Tracking ID: ${data.id}`);
+
+      // Clear form
+      setTrackingId("");
+      setSender("");
+      setRecipient("");
+      setAddress("");
+      setWeight("");
     } catch (err) {
-      console.error(err);
-      setMessage("Server error. Try again later.");
+      console.error("Booking Error:", err);
+      setMessage("Error booking parcel");
     }
   };
 
@@ -36,6 +54,22 @@ function ParcelBooking() {
     <div style={{ maxWidth: "400px", margin: "30px auto", textAlign: "center" }}>
       <h2>Parcel Booking</h2>
       <form onSubmit={handleBooking}>
+        <input
+          type="text"
+          placeholder="Tracking ID"
+          value={trackingId}
+          onChange={(e) => setTrackingId(e.target.value)}
+          required
+          style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
+        />
+        <input
+          type="text"
+          placeholder="Sender Name"
+          value={sender}
+          onChange={(e) => setSender(e.target.value)}
+          required
+          style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
+        />
         <input
           type="text"
           placeholder="Recipient Name"
@@ -62,7 +96,14 @@ function ParcelBooking() {
         />
         <button
           type="submit"
-          style={{ padding: "10px", background: "green", color: "white", border: "none", cursor: "pointer", width: "100%" }}
+          style={{
+            padding: "10px",
+            background: "green",
+            color: "white",
+            border: "none",
+            cursor: "pointer",
+            width: "100%",
+          }}
         >
           Book Parcel
         </button>

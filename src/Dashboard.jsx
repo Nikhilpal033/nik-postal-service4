@@ -6,7 +6,7 @@ function Dashboard() {
 
   return (
     <div>
-      <h2>Welcome to Nik Postal Service</h2>
+      <h2>Welcome to Nikhil Postal Service</h2>
       <button onClick={() => navigate("/booking")}>Book Parcel</button>
       <button onClick={() => navigate("/tracking")}>Track Parcel</button>
       <button onClick={() => navigate("/contact")}>Contact Us</button>

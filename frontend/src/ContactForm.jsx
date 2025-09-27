@@ -1,35 +1,38 @@
 import React, { useState } from "react";
 
 const ContactForm = () => {
+  // State for form data
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     message: "",
   });
 
+  // State to show success message
   const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState("");
 
+  // Handle input changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-// Handle form submit
-const handleSubmit = async (e) => {
+  // Handle form submit
+  const handleSubmit = async (e) => {
   e.preventDefault();
 
-  try {
-    const token = localStorage.getItem("token"); // 🔑 Get saved token
-    if (!token) {
-      alert("You must be logged in to send a message.");
-      return;
-    }
+  const token = localStorage.getItem("token"); // get token from login
 
+  if (!token) {
+    alert("You must be logged in to send a message.");
+    return;
+  }
+
+  try {
     const response = await fetch("http://localhost:5000/api/contact", {
       method: "POST",
       headers: { 
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`  // 🔑 Send token here
+        "Authorization": `Bearer ${token}`  // send token
       },
       body: JSON.stringify(formData),
     });
@@ -48,11 +51,11 @@ const handleSubmit = async (e) => {
   }
 };
 
+
   return (
     <div style={{ maxWidth: "400px", margin: "auto", padding: "20px" }}>
       <h2>Contact Us</h2>
       {submitted && <p style={{ color: "green" }}>Message sent successfully!</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
       <form onSubmit={handleSubmit}>
         <div>
           <label>Name:</label>

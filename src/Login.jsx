@@ -1,73 +1,49 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 
-function Login() {
-  const [userId, setUserId] = useState("");
+const LoginForm = () => {
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
-    // Hardcoded credentials
-    const validUserId = "nik";
-    const validPassword = "123";
+    try {
+      const response = await fetch("http://localhost:5000/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
 
-    if (userId === validUserId && password === validPassword) {
-      // Save login info in localStorage
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("userId", userId);
+      const data = await response.json();
 
-      // Redirect to dashboard
-      navigate("/dashboard");
-    } else {
-      setError("Invalid User ID or Password");
+      if (response.ok) {
+        alert("Login successful!");
+      } else {
+        alert("Error: " + data.message);
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      alert("Server error.");
     }
   };
 
   return (
-    <div style={{ display: "flex", justifyContent: "center", marginTop: "50px" }}>
-      <form onSubmit={handleLogin} style={{ width: "300px", textAlign: "center" }}>
-        <h2>Employee Login</h2>
-        {error && <p style={{ color: "red" }}>{error}</p>}
-
-        <div style={{ marginBottom: "10px" }}>
-          <input
-            type="text"
-            placeholder="User ID"
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-            style={{ width: "100%", padding: "8px" }}
-          />
-        </div>
-
-        <div style={{ marginBottom: "10px" }}>
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            style={{ width: "100%", padding: "8px" }}
-          />
-        </div>
-
-        <button
-          type="submit"
-          style={{
-            width: "100%",
-            padding: "10px",
-            background: "blue",
-            color: "white",
-            border: "none",
-            cursor: "pointer",
-          }}
-        >
-          Login
-        </button>
-      </form>
-    </div>
+    <form onSubmit={handleLogin}>
+      <input
+        type="text"
+        placeholder="Username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <button type="submit">Login</button>
+    </form>
   );
-}
+};
 
-export default Login;
+export default LoginFoxrm;
